@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: minecraft
+  name: minecraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: minecraft
+    spec:
+      containers:
+      - image: openhack/minecraft-server:1.0
+        name: minecraft-server
+        ports:
+        - containerPort: 25565
+        - containerPort: 25575
+        env:
+        - name: EULA
+          value: "TRUE"
+        - name: MOTD
+          value: "T4 minecraft in K8s"
+        volumeMounts:
+        - mountPath: /data
+          name: azurefile-volume
+        resources: {}
+      volumes:
+      - name: azurefile-volume
+        persistentVolumeClaim:
+          claimName: pvc-auto   
+status: {}
