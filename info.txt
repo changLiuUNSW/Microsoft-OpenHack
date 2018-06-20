@@ -6,3 +6,9 @@ Password123
 
 hacker6@otaprd360ops.onmicrosoft.com
 N*sR1DDaQ[M8
+
+https://docs.microsoft.com/en-us/azure/container-service/kubernetes/container-service-kubernetes-walkthrough
+
+
+get credentials
+az aks get-credentials --resource-group t4rulz --name clustert4
