@@ -1,0 +1,74 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: minecraft
+  name: minecraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft
+  template:
+    metadata:
+      labels:
+        app: minecraft
+    spec:
+      containers:
+      - image: openhack/minecraft-server:2.0
+        name: minecraft-server
+        ports:
+        - containerPort: 25565
+        - containerPort: 25575
+        env:
+        - name: EULA
+          value: "TRUE"
+        - name: MOTD
+          value: "Minecraft server in K8s"
+        volumeMounts:
+        - mountPath: /data
+          name: azurefile-volume
+      volumes:
+      - name: azurefile-volume
+        persistentVolumeClaim:
+          claimName: dynamic-persistence-volume-claim          
+---
+apiVersion: v1
+kind: Service
+metadata:
+ labels:
+   app: minecraft
+ name: minecraft
+spec:
+ ports:
+ - name: minecraft-port
+   port: 25565
+   protocol: TCP
+   targetPort: 25565
+ - name: rcon
+   port: 25575
+   protocol: TCP
+   targetPort: 25575
+ selector:
+   app: minecraft
+ type: LoadBalancer
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: dynamic-persistence-volume-storageclass
+provisioner: kubernetes.io/azure-file
+parameters:
+  storageAccount: changliu
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamic-persistence-volume-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: dynamic-persistence-volume-storageclass
+  resources:
+    requests:
+      storage: 5Gi
